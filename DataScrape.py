@@ -1,111 +1,101 @@
 import requests
 import os
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+from Utilities import parse_JSON, create_option_symbol
 import json
 import jsonpickle
 
-start_date = date(2019, 1, 1)
-end_date = date(2019, 1, 19)
+start_date = date(2019, 10, 14)
+end_date = date(2019, 10, 18)
+symbol = 'VXX'
 delta = timedelta(days=1)
 
-WeekNum = []
-Fridays = []
-WeekDays = []
-
-# build week list
-for Week in range(1, 53, 1): WeekNum.append(Week)
-
-# build fridays list
-while start_date <= end_date:
-    if start_date.weekday() == 4:
-        Fridays.append(start_date)
-    start_date += delta
-
-
-# # build calendar
-# # $WeekNum - $WeekDay - $Expiration1 - $Expiration2
-# start_date = date(2019, 1, 1)
-# end_date = date(2020, 1, 1)
-# delta = timedelta(days=1)
-#
-# i=1
-#
-# while start_date <= end_date:
-#     Calendar = [WeekNum[i], start_date, Fridays[i], Fridays[i+1]]
-#     if start_date.weekday() == 0:
-#         i = i + 1
-#     if start_date.weekday() > 4:
-#         start_date += delta
-#         continue
-#     start_date += delta
-
 strike_obj = []
-test = start_date.strftime("%Y-%m-%d")
-# if Data file doesn't exist
-if os.path.exists('Data/Strikes.txt'):
-    with open('Data/Strikes.txt') as json_file:
-        data = json.load(json_file)
 
+# if data file exists pull it in to reduce API calls
+if os.path.exists('Data/Quotes/' + symbol + '.txt'):
+    with open('Data/Quotes/' + symbol + '.txt') as json_file:
+        data = json.load(json_file)
     strike_obj = jsonpickle.decode(data)
 
+# if data file doesn't exist, make request, parse it into JSON and save it
 else:
     response = requests.get('https://sandbox.tradier.com/v1/markets/history',
-        params={'symbol': 'VXX', 'interval': 'daily', 'start': '2019-05-07', 'end': '2019-05-09'},
+        params={'symbol': symbol, 'interval': 'daily', 'start': start_date.strftime("%Y-%m-%d"), 'end': end_date.strftime("%Y-%m-%d")},
         headers={'Authorization': 'Bearer VlksdK7wWMGTOuDtr51sLS2FXBOo', 'Accept': 'application/json'}
     )
 
     # build object
-    response = str(response.content).split('{')
-    for line in response:
-        line = line.replace('"','').replace('}','')
-        if line.startswith('date'):
-            line = line.split(',')
-            new_line = {}
-            for tokens in line:
-                if tokens != '':
-                    tokens = tokens.split(':')
-                    new_line[tokens[0]] = tokens[1]
-            strike_obj.append(new_line)
+    strike_obj = parse_JSON(response)
 
     # save object as json
-    with open('Data\Strikes.txt', 'w') as outfile:
+    with open('Data/Quotes/' + symbol + '.txt', 'w') as outfile:
         json.dump(jsonpickle.encode(strike_obj), outfile)
+
+# Date 2 fridays out
+option_date = date(2019, 10, 25)
+
+# average of date's open and close price
+UnderlyingPrice = round(float(strike_obj[start_date.strftime("%Y-%m-%d")]['open'])+float(strike_obj[start_date.strftime("%Y-%m-%d")]['close']))/2
+
+#Build symbol`
+ticker = create_option_symbol(UnderlyingPrice, option_date)
+
+# if data file exists pull it in to reduce API calls
+if os.path.exists('Data/Quotes/' + ticker + '.txt'):
+    with open('Data/Quotes/' + ticker + '.txt') as json_file:
+        data = json.load(json_file)
+    quote_obj = jsonpickle.decode(data)
+
+# if data file doesn't exist, make request, parse it into JSON and save it
+else:
+    response = requests.get('https://sandbox.tradier.com/v1/markets/history',
+        params={'symbol': ticker, 'interval': 'daily', 'start': start_date.strftime("%Y-%m-%d"),'end': end_date.strftime("%Y-%m-%d")},
+        headers={'Authorization': 'Bearer VlksdK7wWMGTOuDtr51sLS2FXBOo', 'Accept': 'application/json'}
+    )
+
+    # build object
+    quote_obj = parse_JSON(response)
+
+    # save object as json
+    with open('Data/Quotes/' + ticker + '.txt', 'w') as outfile:
+        json.dump(jsonpickle.encode(quote_obj), outfile)
 
 
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
-Price = go.Figure()
-j=[i['open'] for i in strike_obj]
-k=[i['close'] for i in strike_obj]
+Price = make_subplots(specs=[[{"secondary_y": True}]])
+#Price = go.Figure()
 
-import itertools
-for item in j:
-    test = item
+start_date = date(2019, 10, 14)
+end_date = date(2019, 10, 18)
 
-for i in j:
-    l.append(i)
-    l.append
-
-Price.add_trace(go.Scatter(y=j, mode='lines'))
-Price.show()
-
-
-UnderlyingPrice = round(float(strike_obj[0].get('open')) + float(strike_obj[0].get('close'))) / 2
-#Build symbol`
-symbol = 'VXX' + str(Fridays[2].year) + str(Fridays[2].month) + str(Fridays[2].day) + 'C' + UnderlyingPrice
-
-
-start_date = date(2019, 1, 7)
-end_date = date(2019, 1, 18)
-delta = timedelta(days=1)
-
+j=[]
 while start_date <= end_date:
+    if start_date.weekday() < 6:
+        j.append(strike_obj[start_date.strftime("%Y-%m-%d")]['open'])
+        j.append(strike_obj[start_date.strftime("%Y-%m-%d")]['close'])
     start_date += delta
 
-response = requests.get('https://sandbox.tradier.com/v1/markets/history',
-    params={'symbol': 'VXX190517P00025000', 'interval': 'daily', 'start': '2019-05-07', 'end': '2019-05-09'},
-    headers={'Authorization': 'Bearer VlksdK7wWMGTOuDtr51sLS2FXBOo', 'Accept': 'application/json'}
-)
-json_response = response.json()
-print(response.status_code)
-print(json_response)
+k=[]
+start_date = date(2019, 10, 14)
+end_date = date(2019, 10, 18)
+x=[]
+
+while start_date <= end_date:
+    if start_date.weekday() < 6:
+        x.append(start_date)
+        k.append(quote_obj[start_date.strftime("%Y-%m-%d")]['open'])
+        k.append(quote_obj[start_date.strftime("%Y-%m-%d")]['close'])
+    start_date += delta
+
+Price.add_trace(go.Scatter(x=x,y=j, mode='lines', name="Stock Price"), secondary_y=False)
+Price.add_trace(go.Scatter(x=x,y=k, mode='lines', name="Option Price"), secondary_y=True)
+
+start_date = datetime(2019, 10, 14)
+end_date = datetime(2019, 10, 18)
+Price.update_layout(xaxis_range=[start_date, end_date])
+Price.show()
+
+program = 'done'

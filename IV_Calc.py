@@ -33,7 +33,6 @@ for i in range(500,800,1):
         print(str(IV) + " " + str(call))
 
 # put = ((X * math.exp(-r*T) * phi(-d2)) - (S * phi(-d1)))
-#
 
 
 

@@ -108,13 +108,36 @@ plotly.tools.set_credentials_file(username='SeanPaulLevesque', api_key='mr74MhGp
 # #     print('Exception during request')
 #
 
-# Version 3.6.1
-import requests
 
-response = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-    params={'symbol': 'SPY', 'expiration': '2019-06-17'},
-    headers={'Authorization': 'Bearer 8akbH7cl7JD6r5c0bkDu7VkvvOwt', 'Accept': 'application/json'}
-)
-json_response = response.json()
-print(response.status_code)
-print(json_response)
+
+WeekNum = []
+Fridays = []
+WeekDays = []
+
+# build week list
+for Week in range(1, 53, 1): WeekNum.append(Week)
+
+# build fridays list
+start_date_1 = start_date
+while start_date_1 <= end_date:
+    if start_date.weekday() == 4:
+        Fridays.append(start_date)
+    start_date_1 += delta
+
+
+# # build calendar
+# # $WeekNum - $WeekDay - $Expiration1 - $Expiration2
+# start_date = date(2019, 1, 1)
+# end_date = date(2020, 1, 1)
+# delta = timedelta(days=1)
+#
+# i=1
+#
+# while start_date <= end_date:
+#     Calendar = [WeekNum[i], start_date, Fridays[i], Fridays[i+1]]
+#     if start_date.weekday() == 0:
+#         i = i + 1
+#     if start_date.weekday() > 4:
+#         start_date += delta
+#         continue
+#     start_date += delta
