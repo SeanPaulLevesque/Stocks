@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import math
 
 def parse_JSON(response):
     strike_obj = {}
@@ -26,8 +27,44 @@ def parse_JSON(response):
 
 def create_option_symbol(strike, option_exp):
 
+    month = str(option_exp.month)
+    day = str(option_exp.day)
+
+    # format date
+    if len(month) < 2:
+        month = '0' + month
+    if len(day) < 2:
+        day = '0' + day
+
     strike = '000' + str(strike).replace('.','') + '00'
     # Build symbol`
-    symbol = 'VXX' + str(option_exp.year)[2:4] + str(option_exp.month) + str(option_exp.day) + 'C' + strike
+    symbol = 'VXX' + str(option_exp.year)[2:4] + month + day + 'P' + strike
 
     return symbol
+
+def phi(x):
+    #'Cumulative distribution function for the standard normal distribution'
+    return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
+
+def Average(lst):
+    return sum(lst) / len(lst)
+
+def IV(S, X, call_price, r, exp, curr_date):
+    T = int((exp - curr_date).days) / 365
+    S = float(S)
+    call_price = float(call_price)
+    k = []
+    for i in range(100, 900, 1):
+
+        IV = i/1000
+
+        nLog = math.log(S/X)
+        d1 = (nLog + (r+((IV*IV)/2))*T) / (IV*math.sqrt(T))
+        d2 = d1 - (IV*math.sqrt(T))
+
+        call = (S * phi(d1)) - (X * math.exp(-r*T) * phi(d2))
+        if round(call,2) == call_price:
+            # getting close
+            k.append(IV)
+    return Average(k)
+
