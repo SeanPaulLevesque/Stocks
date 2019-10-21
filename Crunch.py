@@ -31,13 +31,20 @@ curr_date = date(2019, 10, 15)
 # average of date's open and close price
 UnderlyingPrice = round(float(stock_price_obj[curr_date.strftime("%Y-%m-%d")]['open'])+float(stock_price_obj[curr_date.strftime("%Y-%m-%d")]['close']))/2
 
-ticker = create_option_symbol(UnderlyingPrice, option_exp)
-
-# pull in option price
+ticker = create_option_symbol(UnderlyingPrice, option_exp, 'C')
+# pull in Call option price
 if os.path.exists('Data/Quotes/' + str(ticker[0:9]) + '/' + ticker + '.txt'):
     with open('Data/Quotes/' + str(ticker[0:9]) + '/' + ticker + '.txt') as json_file:
         data = json.load(json_file)
-    quote_obj = jsonpickle.decode(data)
+    call_quote_obj = jsonpickle.decode(data)
+    # pull in option price
+
+ticker = create_option_symbol(UnderlyingPrice, option_exp, 'P')
+# pull in Put option price
+if os.path.exists('Data/Quotes/' + str(ticker[0:9]) + '/' + ticker + '.txt'):
+    with open('Data/Quotes/' + str(ticker[0:9]) + '/' + ticker + '.txt') as json_file:
+        data = json.load(json_file)
+    put_quote_obj = jsonpickle.decode(data)
 
 
 
@@ -50,18 +57,15 @@ x = []
 
 # collate open and close price
 while start_date <= end_date:
-    if start_date.weekday() < 6:
+    if start_date.weekday() < 5:
         x.append(start_date)
         j.append(stock_price_obj[start_date.strftime("%Y-%m-%d")]['open'])
-        #j.append(stock_price_obj[start_date.strftime("%Y-%m-%d")]['close'])
-        k.append(quote_obj[start_date.strftime("%Y-%m-%d")]['open'])
-        #k.append(quote_obj[start_date.strftime("%Y-%m-%d")]['close'])
-        l.append(IV(stock_price_obj[start_date.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, quote_obj[start_date.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, start_date))
-        #l.append(IV(stock_price_obj[start_date.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, quote_obj[start_date.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, start_date))
+        k.append(call_quote_obj[start_date.strftime("%Y-%m-%d")]['open'])
+        l.append(IV(stock_price_obj[start_date.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, call_quote_obj[start_date.strftime("%Y-%m-%d")]['open'], put_quote_obj[start_date.strftime("%Y-%m-%d")]['open'],  0.0159, option_exp, start_date))
     start_date += delta
 
-Price.add_trace(go.Scatter(x=x,y=l, mode='lines', name="Volatility"), secondary_y=False)
-Price.add_trace(go.Scatter(x=x,y=k, mode='lines', name="Option Price"), secondary_y=True)
+Price.add_trace(go.Scatter(x=x,y=l, mode='lines', name="IV"), secondary_y=False)
+Price.add_trace(go.Scatter(x=x,y=j, mode='lines', name="Option Price"), secondary_y=True)
 
 start_date = datetime(2019, 10, 14)
 end_date = datetime(2019, 10, 18)
