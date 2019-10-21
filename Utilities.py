@@ -75,7 +75,17 @@ def IV(S, X, call_price, put_price, r, exp, curr_date):
     call_price = float(call_price)
     put_price = float(put_price)
     Ft = X + (math.exp(r * T) * call_price) - (math.exp(r * T) * put_price)
-    IV = (math.log(X / Ft)) / ((S - Ft) * math.sqrt(T))
-
+    for IV in range(100,1000,1):
+        IV = IV/1000
+        moneyness = (math.log(X / Ft)) / (IV * math.sqrt(T))
+        print(moneyness)
+    IV = (math.log(X / Ft)) / ((S/X) * math.sqrt(T))
+    print(IV)
+    IV = (math.log(X / Ft)) / ((S/X) * math.sqrt(T))
+    print(IV)
+    IV = (math.log(X / Ft)) / ((S/X) * math.sqrt(T))
+    print(IV)
+    IV = (math.log(X / Ft)) / ((S/X) * math.sqrt(T))
+    print(IV)
     return IV
 

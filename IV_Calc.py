@@ -4,27 +4,28 @@ def phi(x):
     #'Cumulative distribution function for the standard normal distribution'
     return (1.0 + math.erf(x / math.sqrt(2.0))) / 2.0
 
+#20.85
 # ATM strike price
-k = 21
+k = 20.5
 # risk free rate
 r = 0.0159
 # annualized time to maturity
-T = 19/265
+T = 5/265
 # ATM call price
-C = 1.34
+C = .65
 # ATM put price
-P = 1.10
+P = .31
 # implied forward price
 Ft = k + (math.exp(r*T)*C)-(math.exp(r*T)*P)
 
 IV = .5297
-for IV in range(200,800,1):
+for IV in range(200,2000,1):
     IV = IV/1000
     moneyness = (math.log(20.5/21.29))/(IV*math.sqrt(T))
     print(moneyness)
 
 
-IV = (math.log(k / Ft)) / ((21.29 - 20.5) * math.sqrt(T))
+IV = (math.log(k / Ft)) / ((Ft - k) * math.sqrt(T))
 
 # ATM strike price
 k = 21
