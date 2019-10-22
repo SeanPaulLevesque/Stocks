@@ -18,6 +18,12 @@ P = .31
 # implied forward price
 Ft = k + (math.exp(r*T)*C)-(math.exp(r*T)*P)
 
+IV = (math.log(X / Ft)) / ((20.85 / 20.5) * math.sqrt(T))
+print(IV)
+IV = (math.log(X / Ft)) / ((20.5 / 20.85) * math.sqrt(T))
+print(IV)
+IV = ((S / X) * math.sqrt(T))
+
 IV = .5297
 for IV in range(200,2000,1):
     IV = IV/1000
