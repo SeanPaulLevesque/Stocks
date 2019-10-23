@@ -21,10 +21,9 @@ while dt <= end_date:
     dt += delta
 
 for option_exp in Fridays:
-    #option_exp = date(2019, 10, 25)
-    start_date = weeks(option_exp, 4)
-    end_date = weeks(option_exp, 1)
 
+    start_date = weeks(option_exp, 3)
+    end_date = weeks(option_exp, 1)
 
 
     # pull in stock price
@@ -65,21 +64,25 @@ for option_exp in Fridays:
     x = []
 
 
-    date = start_date
-    while date <= end_date:
-        if date.weekday() < 5:
-            x.append(date)
-            j.append(stock_price_obj[date.strftime("%Y-%m-%d")]['open'])
-
-            UnderlyingPrice = round(float(stock_price_obj[date.strftime("%Y-%m-%d")]['open']) + float(stock_price_obj[date.strftime("%Y-%m-%d")]['close'])) / 2
+    dt = start_date
+    while dt <= end_date:
+        if dt.weekday() < 5:
+            if dt == date(2019, 9, 2):
+                dt = dt + delta
+            if dt == date(2019, 7, 4):
+                dt = dt + delta
+            x.append(dt)
+            j.append(stock_price_obj[dt.strftime("%Y-%m-%d")]['open'])
+            j.append(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'])
+            UnderlyingPrice = round(float(stock_price_obj[dt.strftime("%Y-%m-%d")]['open']) + float(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'])) / 2
             k.append(UnderlyingPrice)
             # calc with daily strike
-            l.append(IV(stock_price_obj[date.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, Call_Dictionary[UnderlyingPrice][date.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, date, 'C'))
-            m.append(IV(stock_price_obj[date.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, Put_Dictionary[UnderlyingPrice][date.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, date, 'P'))
+            #l.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, Call_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, dt, 'C'))
+            #m.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, Put_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, dt, 'P'))
 
-            l.append(IV(stock_price_obj[date.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, Call_Dictionary[UnderlyingPrice][date.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, date, 'C'))
-            m.append(IV(stock_price_obj[date.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, Put_Dictionary[UnderlyingPrice][date.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, date, 'P'))
-        date += delta
+            l.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, Call_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, dt, 'C'))
+            m.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, Put_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, dt, 'P'))
+        dt += delta
 
     Price = make_subplots(specs=[[{"secondary_y": True}]])
 
