@@ -49,7 +49,9 @@ def phi(x):
 def Average(lst):
     return sum(lst) / len(lst)
 
-def IV(S, X, call_price, r, exp, curr_date):
+def IV(S, X, call_price, r, exp, curr_date, Option):
+    # X is strike
+    # S is price
     T = int((exp - curr_date).days) / 253
     S = float(S)
     call_price = float(call_price)
@@ -62,14 +64,17 @@ def IV(S, X, call_price, r, exp, curr_date):
         d1 = (nLog + (r+((IV*IV)/2))*T) / (IV*math.sqrt(T))
         d2 = d1 - (IV*math.sqrt(T))
 
-        call = (S * phi(d1)) - (X * math.exp(-r*T) * phi(d2))
-        if round(call,2) == call_price:
+        if Option == 'C':
+            price = (S * phi(d1)) - (X * math.exp(-r*T) * phi(d2))
+        if Option == 'P':
+            price = ((X * math.exp(-r * T) * phi(-d2)) - (S * phi(-d1)))
+        if round(price,2) == call_price:
             # getting close
             k.append(IV)
     if k != []:
         k = Average(k)
     else:
-        k = 1
+        k = 2
     return k
 
 
@@ -89,4 +94,12 @@ def IV2(S, X, call_price, put_price, r, exp, curr_date):
     IV = (math.log(X / Ft)) / ((S/X) * math.sqrt(T))
 
     return IV
+
+def weeks(dt, num):
+    delta = timedelta(days=7)
+
+    for i in range(1, num+1, 1):
+        dt = dt - delta
+
+    return dt
 
