@@ -25,6 +25,28 @@ def parse_JSON(response):
 
     return strike_obj
 
+def parse_option_JSON(response, hour):
+    strike_obj = {}
+    response = str(response.content).split('{')
+    for line in response:
+        line = line.replace('"','').replace('}','')
+        if line.startswith('symbol'):
+            line = line.split(',')
+            new_line = {}
+            for tokens in line:
+                if tokens != '':
+                    if tokens.startswith('symbol'):
+                        tokens = tokens.split(':')
+                        symbol = tokens[1]
+                        # tokens[1] = tokens[1].split('-')
+                        # new_line[tokens[0]] = date(int(tokens[1][0]), int(tokens[1][1]), int(tokens[1][2]))
+                    else:
+                        tokens = tokens.split(':')
+                        new_line[tokens[0]] = tokens[1]
+            strike_obj[symbol] = new_line
+
+    return strike_obj
+
 def create_option_symbol(strike, option_exp, cp):
 
     month = str(option_exp.month)

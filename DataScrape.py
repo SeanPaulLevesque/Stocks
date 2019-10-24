@@ -39,9 +39,6 @@ else:
     with open('Data/Quotes/' + symbol + '.txt', 'w') as outfile:
         json.dump(jsonpickle.encode(strike_obj), outfile)
 
-# Date 2 fridays out
-option_exp = date(2019, 10, 18)
-
 
 for option_exp in Fridays:
     for UnderlyingPrice in range(40, 60, 1):
@@ -69,7 +66,6 @@ for option_exp in Fridays:
             # build object
             quote_obj = parse_JSON(response)
 
-            test = str(ticker[0:9])
             # save object as json
             with open('Data/Quotes/' + str(ticker[0:9]) + '/' + ticker + '.txt', 'w') as outfile:
                 json.dump(jsonpickle.encode(quote_obj), outfile)
