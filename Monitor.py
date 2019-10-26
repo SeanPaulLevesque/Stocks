@@ -7,16 +7,14 @@ from datetime import datetime
 
 sched = BlockingScheduler()
 
-@sched.scheduled_job('cron', day_of_week='mon-fri', hour='9-17', minute=10)
+@sched.scheduled_job('cron', day_of_week='mon-fri', hour='9-17', minute=30)
 def scheduled_job():
 
     response = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-                            params={'symbol': 'VXX', 'expiration': '2019-11-1', 'greeks': 'true'},
+                            params={'symbol': 'VXX', 'expiration': '2019-11-01', 'greeks': 'true'},
                             headers={'Authorization': 'Bearer VlksdK7wWMGTOuDtr51sLS2FXBOo',
                                      'Accept': 'application/json'}
                             )
-    json_response = response.json()
-
 
     curr_time = datetime.now()
     quote_obj = parse_option_JSON(response, curr_time.hour)
