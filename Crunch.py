@@ -8,8 +8,8 @@ from plotly.subplots import make_subplots
 
 
 symbol = 'VXX'
-dt = date(2019, 8, 1)
-end_date = date(2019,10,25)
+dt = date(2019, 10, 12)
+end_date = date(2019,10,20)
 
 
 # build fridays list
@@ -60,6 +60,7 @@ for option_exp in Fridays:
     j = []
     l = []
     m = []
+    c = []
     # date range
     x = []
 
@@ -71,6 +72,8 @@ for option_exp in Fridays:
                 dt = dt + delta
             if dt == date(2019, 7, 4):
                 dt = dt + delta
+            print(dt)
+            print(option_exp)
             x.append(dt)
             j.append(stock_price_obj[dt.strftime("%Y-%m-%d")]['open'])
             j.append(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'])
@@ -79,14 +82,14 @@ for option_exp in Fridays:
             # calc with daily strike
             #l.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, Call_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, dt, 'C'))
             #m.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['open'], UnderlyingPrice, Put_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['open'], 0.0159, option_exp, dt, 'P'))
-
+            c.append(Call_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['close'])
             l.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, Call_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, dt, 'C'))
             m.append(IV(stock_price_obj[dt.strftime("%Y-%m-%d")]['close'], UnderlyingPrice, Put_Dictionary[UnderlyingPrice][dt.strftime("%Y-%m-%d")]['close'], 0.0159, option_exp, dt, 'P'))
         dt += delta
 
     Price = make_subplots(specs=[[{"secondary_y": True}]])
 
-    Price.add_trace(go.Scatter(x=x,y=j, mode='lines', name="Stock Price"), secondary_y=True)
+    Price.add_trace(go.Scatter(x=x,y=c, mode='lines', name="Call Price"), secondary_y=True)
     # Price.add_trace(go.Scatter(x=x,y=k, mode='lines', name="Strike Price"), secondary_y=True)
     Price.add_trace(go.Scatter(x=x,y=l, mode='lines', name="Call IV"), secondary_y=False)
     Price.add_trace(go.Scatter(x=x,y=m, mode='lines', name="Put IV"), secondary_y=False)

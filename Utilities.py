@@ -78,6 +78,7 @@ def IV(S, X, call_price, r, exp, curr_date, Option):
     S = float(S)
     call_price = float(call_price)
     k = []
+    flag = True
     for i in range(1, 3000, 1):
 
         IV = i/1000
@@ -93,6 +94,9 @@ def IV(S, X, call_price, r, exp, curr_date, Option):
         if round(price,2) == call_price:
             # getting close
             k.append(IV)
+            if flag == True:
+                print("time= " + str(T) + " d1= " + str(d1) + " d2= " + str(d2) + " phi(d1)= " + str(phi(d1)) + "nLog= " + str(nLog) + "Strike= " + str(X) + "Price= " + str(S))
+                flag = False
     if k != []:
         k = Average(k)
     else:
@@ -124,4 +128,10 @@ def weeks(dt, num):
         dt = dt - delta
 
     return dt
+
+def calc_closest_strike(lpper, lower):
+
+    closest = round(upper + lower) / 2
+
+    return closest
 
