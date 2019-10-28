@@ -52,10 +52,17 @@ BlackSchules['t_exp'] = ((pd.to_datetime(option_exp) - pd.to_datetime(BlackSchul
 # BlackSchules['d2'] = (((BlackSchules['nlog'] + (r+((IV*IV)/2))*BlackSchules['t_exp']) / (IV*np.sqrt(BlackSchules['t_exp']))) - (IV*np.sqrt(BlackSchules['t_exp'])))
 # BlackSchules['phi_d1'] = ((1.0 + erf(((BlackSchules['nlog'] + (r+((IV*IV)/2))*BlackSchules['t_exp']) / (IV*np.sqrt(BlackSchules['t_exp']))) / np.sqrt(2.0))) / 2.0)
 # BlackSchules['phi_d2'] = ((1.0 + erf((((BlackSchules['nlog'] + (r+((IV*IV)/2))*BlackSchules['t_exp']) / (IV*np.sqrt(BlackSchules['t_exp']))) - (IV*np.sqrt(BlackSchules['t_exp']))) / np.sqrt(2.0))) / 2.0)
-for IV in range(1,2000,1):
-    IV = IV/1000
+for IV in range(1, 20, 1):
+    IV = IV/10
     BlackSchules['calc_call_price_' + str(IV)] = (BlackSchules['Underlying_close'] * ((1.0 + erf(((BlackSchules['nlog'] + (r+((IV*IV)/2))*BlackSchules['t_exp']) / (IV*np.sqrt(BlackSchules['t_exp']))) / np.sqrt(2.0))) / 2.0)) - (BlackSchules['closest_strike'] * np.exp(-r*BlackSchules['t_exp']) * ((1.0 + erf((((BlackSchules['nlog'] + (r+((IV*IV)/2))*BlackSchules['t_exp']) / (IV*np.sqrt(BlackSchules['t_exp']))) - (IV*np.sqrt(BlackSchules['t_exp']))) / np.sqrt(2.0))) / 2.0))
 
+
+# print(0.039525691699604744 in BlackSchules.values)
+test = BlackSchules.loc['2019-10-08'][5]
+print(test)
+print(BlackSchules.loc['2019-10-08'].where(BlackSchules.loc['2019-10-08'] == test))
+
+# 0.75602
 program = 'done'
 
 
